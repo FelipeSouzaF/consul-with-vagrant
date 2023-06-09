@@ -80,7 +80,28 @@ bind_addr = "0.0.0.0"
 advertise_addr = "{{ GetInterfaceIP `eth1` }}"
 
 bootstrap_expect = 1
+
+acl = {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+}
                 ' > /etc/consul.d/consul.hcl
+
+                systemctl restart consul
+
+                echo IyEvYmluL2Jhc2gKCkFQSV9VUkw9Imh0dHA6Ly8xMjcuMC4wLjE6ODUwMC92MS9zdGF0dXMvbGVhZGVyIgpNQVhfUkVUUklFUz0xMApSRVRSWV9JTlRFUlZBTD01CgpjaGVja19hcGlfcmVhZGluZXNzKCkgewogIGxvY2FsIHVybD0kMQogIGxvY2FsIHJldHJpZXM9JDIKICBsb2NhbCBpbnRlcnZhbD0kMwogIGxvY2FsIHJlc3BvbnNlX2NvZGUKCiAgZWNobyAiQ2hlY2tpbmcgQVBJIHJlYWRpbmVzcy4uLiIKCiAgZm9yICgoaSA9IDE7IGkgPD0gcmV0cmllczsgaSsrKSk7IGRvCiAgICByZXNwb25zZV9jb2RlPSQoY3VybCAtcyAtbyAvZGV2L251bGwgLXcgIiV7aHR0cF9jb2RlfSIgIiR1cmwiKQoKICAgIGlmIFtbICIkcmVzcG9uc2VfY29kZSIgLWVxIDIwMCBdXTsgdGhlbgogICAgICBlY2hvICJBUEkgaXMgcmVhZHkhIgogICAgICByZXR1cm4gMAogICAgZmkKCiAgICBlY2hvICJBUEkgbm90IHJlYWR5IHlldC4gUmV0cnlpbmcgaW4gJGludGVydmFsIHNlY29uZHMuLi4iCiAgICBzbGVlcCAiJGludGVydmFsIgogIGRvbmUKCiAgZWNobyAiQVBJIGRpZCBub3QgYmVjb21lIHJlYWR5IHdpdGhpbiB0aGUgZ2l2ZW4gcmV0cmllcy4iCiAgcmV0dXJuIDEKfQoKIyBVc2FnZSBleGFtcGxlCmNoZWNrX2FwaV9yZWFkaW5lc3MgIiRBUElfVVJMIiAiJE1BWF9SRVRSSUVTIiAiJFJFVFJZX0lOVEVSVkFMIg== | base64 -d > $HOME/check-consul.sh
+
+                bash $HOME/check-consul.sh
+
+                # consul acl bootstrap
+                ACL_FILE="/etc/consul.d/acl-bootstrap-token.txt"
+
+                touch $ACL_FILE
+
+                consul acl bootstrap | awk '/SecretID/ {print $2}' > "$ACL_FILE"
+
+                echo "Consul ACL bootstrap token generated and saved to: $ACL_FILE"
                 SHELL
             end
         end
